@@ -14,7 +14,7 @@ instaladas para Claude Code (`.claude/skills/` → `.agents/skills/`).
 3. O usa el CLI directamente:
    ```bash
    sports-skills football get_daily_schedule
-   sports-skills football get_standings --season_id=premier-league-2025
+   sports-skills football get_season_standings --season_id=premier-league-2025
    sports-skills betting convert_odds --odds=-150 --from_format=american
    ```
 
