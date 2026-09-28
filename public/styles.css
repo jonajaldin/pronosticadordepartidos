@@ -1,0 +1,272 @@
+/* Colores de la bandera de Bolivia: rojo, amarillo y verde. */
+:root {
+  --rojo: #d52b1e;
+  --rojo-oscuro: #b02015;
+  --amarillo: #f9e300;
+  --verde: #007934;
+  --verde-oscuro: #00481f;
+  --crema: #fff9e3;
+  --papel: #ffffff;
+  --tinta: #1d1a14;
+  --tenue: #5f5a4c;
+  --borde: #e4dbb6;
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+
+body {
+  margin: 0;
+  background: var(--crema);
+  color: var(--tinta);
+  font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  -webkit-text-size-adjust: 100%;
+}
+
+a { color: var(--verde); text-decoration-thickness: 2px; text-underline-offset: 2px; }
+a:hover { color: var(--verde-oscuro); }
+
+:focus-visible { outline: 3px solid var(--verde); outline-offset: 2px; }
+.cabecera :focus-visible, .pie :focus-visible { outline-color: var(--amarillo); }
+
+.contenedor { width: min(1040px, calc(100% - 32px)); margin-inline: auto; }
+
+/* Franja tricolor (como la bandera: rojo, amarillo, verde) */
+.franja { display: grid; grid-template-rows: repeat(3, 6px); }
+.franja span:nth-child(1) { background: var(--rojo); }
+.franja span:nth-child(2) { background: var(--amarillo); }
+.franja span:nth-child(3) { background: var(--verde); }
+
+.cabecera {
+  background: var(--verde-oscuro);
+  color: var(--crema);
+  padding: 22px 0 24px;
+  border-bottom: 4px solid var(--amarillo);
+}
+.cabecera__fila { display: flex; align-items: center; gap: 16px; }
+.cabecera h1 { margin: 0; font-size: clamp(1.45rem, 4.5vw, 2.1rem); line-height: 1.15; letter-spacing: 0.01em; }
+.cabecera p { margin: 4px 0 0; opacity: 0.92; }
+.chakana { width: 52px; height: 52px; flex: none; color: var(--amarillo); }
+
+.rejilla {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+  gap: 22px;
+  padding: 26px 0 36px;
+}
+@media (min-width: 880px) {
+  .rejilla { grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); }
+}
+#config { grid-column: 1 / -1; }
+
+/* Tarjetas con franja tricolor */
+.tarjeta {
+  position: relative;
+  overflow: hidden;
+  padding: 28px 18px 18px;
+  background: var(--papel);
+  border: 2px solid var(--tinta);
+  border-radius: 16px;
+  box-shadow: 4px 4px 0 var(--tinta);
+}
+.tarjeta::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 8px;
+  background: linear-gradient(90deg, var(--rojo) 0 33.34%, var(--amarillo) 33.34% 66.67%, var(--verde) 66.67%);
+}
+.tarjeta h2 { margin: 0 0 12px; font-size: 1.2rem; }
+.tarjeta__cabecera { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 4px; }
+.tarjeta__cabecera h2 { margin: 0; }
+.tarjeta--aviso { background: #fff1c2; }
+@media (max-width: 420px) {
+  .tarjeta { padding-inline: 14px; }
+  .duelo { gap: 6px; }
+}
+.tarjeta--aviso ol { margin: 0; padding-left: 1.3em; }
+.tarjeta--aviso li { margin: 4px 0; }
+
+code, kbd {
+  padding: 1px 6px;
+  border: 1px solid var(--tinta);
+  border-radius: 6px;
+  background: var(--papel);
+  font: 0.9em ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  overflow-wrap: anywhere;
+}
+
+/* Formulario */
+form { display: grid; gap: 14px; }
+label { display: grid; gap: 4px; font-size: 0.9rem; font-weight: 700; }
+.equipos-fila { display: grid; gap: 14px; grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 520px) {
+  .equipos-fila { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+select, input {
+  width: 100%;
+  min-height: 46px;
+  padding: 10px 12px;
+  background: var(--papel);
+  color: var(--tinta);
+  border: 2px solid var(--tinta);
+  border-radius: 10px;
+  font: inherit;
+  font-weight: 400;
+}
+input::placeholder { color: #8a8474; }
+
+button { font: inherit; font-weight: 700; cursor: pointer; }
+button:disabled { opacity: 0.55; cursor: not-allowed; }
+.primario {
+  min-height: 50px;
+  padding: 12px 18px;
+  color: #fff;
+  background: var(--rojo);
+  border: 2px solid var(--tinta);
+  border-radius: 10px;
+  box-shadow: 0 3px 0 var(--tinta);
+  font-size: 1.05rem;
+}
+.primario:hover:not(:disabled) { background: var(--rojo-oscuro); }
+.primario:active:not(:disabled) { transform: translateY(2px); box-shadow: 0 1px 0 var(--tinta); }
+.secundario {
+  min-height: 40px;
+  padding: 6px 14px;
+  color: var(--tinta);
+  background: var(--papel);
+  border: 2px solid var(--tinta);
+  border-radius: 10px;
+}
+.secundario:hover:not(:disabled) { background: var(--amarillo); }
+
+/* Avisos */
+.aviso {
+  margin-top: 14px;
+  padding: 12px 14px;
+  background: #fff1ef;
+  border: 2px solid var(--rojo);
+  border-left-width: 8px;
+  border-radius: 10px;
+}
+.aviso--info { background: #eef8f1; border-color: var(--verde); }
+.aviso p { margin: 0; }
+.aviso p + p { margin-top: 4px; font-size: 0.92rem; color: var(--tenue); }
+
+.nota { margin: 6px 0 12px; font-size: 0.9rem; color: var(--tenue); }
+
+/* Resultado del pronóstico */
+.resultado { display: grid; gap: 16px; margin-top: 18px; }
+.resultado:empty { display: none; }
+.duelo { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 10px; text-align: center; }
+.duelo__equipo { display: grid; justify-items: center; gap: 4px; font-size: 0.95rem; font-weight: 700; overflow-wrap: break-word; }
+.duelo__equipo small { font-weight: 400; color: var(--tenue); }
+.duelo .escudo, .duelo .escudo--vacio { width: 48px; height: 48px; }
+.vs { font-weight: 800; color: var(--tenue); }
+
+.veredicto {
+  display: grid;
+  gap: 2px;
+  padding: 12px 14px;
+  background: var(--amarillo);
+  border: 2px solid var(--tinta);
+  border-radius: 12px;
+}
+.veredicto__etiqueta { font-size: 0.8rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+.veredicto strong { font-size: 1.4rem; line-height: 1.25; }
+.veredicto b { font-size: 1.15em; font-variant-numeric: tabular-nums; }
+
+.barra {
+  display: flex;
+  height: 18px;
+  overflow: hidden;
+  border: 2px solid var(--tinta);
+  border-radius: 999px;
+}
+.barra span { min-width: 3px; }
+.barra .l, .leyenda .l::before { background: var(--rojo); }
+.barra .e, .leyenda .e::before { background: var(--amarillo); }
+.barra .v, .leyenda .v::before { background: var(--verde); }
+.barra span + span { border-left: 2px solid var(--tinta); }
+.leyenda { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin-top: 8px; font-size: 0.88rem; text-align: center; }
+.leyenda span::before {
+  content: "";
+  display: inline-block;
+  width: 0.8em;
+  height: 0.8em;
+  margin-right: 6px;
+  border: 1.5px solid var(--tinta);
+  border-radius: 3px;
+  vertical-align: -1px;
+}
+
+.dato { margin: 0; font-size: 0.95rem; }
+.resultado h3 { margin: 0 0 6px; font-size: 0.95rem; }
+.marcadores { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.marcadores li { padding: 2px 12px; border: 2px solid var(--tinta); border-radius: 999px; font-variant-numeric: tabular-nums; }
+
+/* Partidos en vivo y próximos */
+.partidos { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.vacio { padding: 14px; color: var(--tenue); text-align: center; }
+.partido {
+  display: grid;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 12px;
+  color: inherit;
+  text-align: left;
+  font-weight: 400;
+  background: var(--crema);
+  border: 2px solid var(--borde);
+  border-radius: 12px;
+  transition: border-color 0.15s;
+}
+.partido:hover { border-color: var(--tinta); }
+.partido__fila { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
+.partido__hora { font-size: 0.85rem; color: var(--tenue); text-transform: capitalize; }
+.partido__equipos { display: grid; gap: 4px; }
+.equipo { display: flex; align-items: center; gap: 8px; min-width: 0; font-weight: 600; }
+.equipo span { overflow-wrap: anywhere; }
+.escudo { width: 24px; height: 24px; flex: none; object-fit: contain; }
+.escudo--vacio { width: 24px; height: 24px; flex: none; background: var(--borde); border-radius: 50%; }
+.marcador { font-weight: 800; font-variant-numeric: tabular-nums; }
+.en-vivo {
+  padding: 1px 8px;
+  color: #fff;
+  background: var(--rojo);
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  animation: pulso 1.6s ease-in-out infinite;
+}
+@keyframes pulso { 50% { opacity: 0.6; } }
+.pronostico {
+  width: fit-content;
+  max-width: 100%;
+  padding: 2px 10px;
+  background: var(--amarillo);
+  border: 2px solid var(--tinta);
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.pie {
+  padding: 18px 0;
+  color: var(--crema);
+  background: var(--verde-oscuro);
+  border-top: 4px solid var(--amarillo);
+  font-size: 0.85rem;
+}
+.pie p { margin: 0; }
+.pie p + p { margin-top: 6px; opacity: 0.85; }
+.pie a { color: var(--amarillo); }
+
+@media (prefers-reduced-motion: reduce) {
+  .en-vivo { animation: none; }
+  * { scroll-behavior: auto !important; transition: none !important; }
+}

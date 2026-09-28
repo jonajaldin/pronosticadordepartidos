@@ -1,0 +1,16 @@
+{
+  "name": "pronosticador-de-partidos",
+  "version": "1.0.0",
+  "description": "Ingresa un partido de fútbol y obtén el resultado más probable. Datos de football-data.org, diseño con los colores de Bolivia.",
+  "private": true,
+  "license": "MIT",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "check": "node scripts/check.js",
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

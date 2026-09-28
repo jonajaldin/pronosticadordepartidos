@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="es-BO">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pronosticador de Partidos</title>
+  <meta name="description" content="Ingresa un partido de fútbol y mira el resultado más probable.">
+  <meta name="theme-color" content="#00481f">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <div class="franja" aria-hidden="true"><span></span><span></span><span></span></div>
+
+  <header class="cabecera">
+    <div class="contenedor cabecera__fila">
+      <svg class="chakana" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M9 1h6v4h4v4h4v6h-4v4h-4v4H9v-4H5v-4H1V9h4V5h4z" fill="currentColor"/>
+        <circle cx="12" cy="12" r="3" fill="#d52b1e"/>
+      </svg>
+      <div>
+        <h1>Pronosticador de Partidos</h1>
+        <p>Ingresa un partido y mira el resultado más probable.</p>
+      </div>
+    </div>
+  </header>
+
+  <main class="contenedor rejilla">
+    <noscript><p class="tarjeta">Activa JavaScript para usar el pronosticador.</p></noscript>
+
+    <section id="config" class="tarjeta tarjeta--aviso" aria-labelledby="t-config" hidden>
+      <h2 id="t-config">Falta tu clave gratuita</h2>
+      <ol>
+        <li>Regístrate en <a href="https://www.football-data.org/client/register" target="_blank" rel="noopener">football-data.org/client/register</a>. El token llega a tu correo.</li>
+        <li>Pégalo en el archivo <code>.env</code>: <code>FOOTBALL_DATA_TOKEN=tu_token</code></li>
+        <li>Detén la app (<kbd>Ctrl</kbd>+<kbd>C</kbd>) y ejecuta de nuevo <code>npm start</code>.</li>
+      </ol>
+    </section>
+
+    <section class="tarjeta" aria-labelledby="t-form">
+      <h2 id="t-form">Tu partido</h2>
+      <form id="form" novalidate>
+        <label>Liga o torneo
+          <select id="liga" name="liga" disabled></select>
+        </label>
+        <div class="equipos-fila">
+          <label>Local
+            <input id="local" name="local" list="equipos" autocomplete="off" autocapitalize="words" placeholder="Ej.: Real Madrid" maxlength="80" required>
+          </label>
+          <label>Visitante
+            <input id="visita" name="visita" list="equipos" autocomplete="off" autocapitalize="words" placeholder="Ej.: Barcelona" maxlength="80" required>
+          </label>
+        </div>
+        <datalist id="equipos"></datalist>
+        <button id="enviar" class="primario" type="submit" disabled>Predecir resultado</button>
+      </form>
+
+      <div id="aviso" class="aviso" role="alert" hidden></div>
+      <div id="resultado" class="resultado" aria-live="polite"></div>
+    </section>
+
+    <section class="tarjeta" aria-labelledby="t-partidos">
+      <div class="tarjeta__cabecera">
+        <h2 id="t-partidos">En vivo y próximos</h2>
+        <button id="actualizar" class="secundario" type="button" disabled>Actualizar</button>
+      </div>
+      <p id="estado" class="nota" aria-live="polite">Cargando partidos…</p>
+      <ul id="partidos" class="partidos"></ul>
+    </section>
+  </main>
+
+  <footer class="pie">
+    <div class="contenedor">
+      <p>Horarios en hora de Bolivia (La Paz, UTC−4). Datos de <a href="https://www.football-data.org/" target="_blank" rel="noopener">football-data.org</a>; los marcadores en vivo pueden tener retraso.</p>
+      <p>Pronóstico estadístico (goles esperados por ataque y defensa de cada equipo). Es solo informativo: no garantiza resultados ni es consejo de apuestas.</p>
+    </div>
+  </footer>
+
+  <script src="/app.js" defer></script>
+</body>
+</html>
