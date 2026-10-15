@@ -28,6 +28,37 @@ const SECURITY_HEADERS = {
 };
 const MAX_PARAM_LENGTH = 80;
 
+// ---------------------------------------------------------------------------
+// Limitador por IP (protege la cuota de football-data.org)
+// ---------------------------------------------------------------------------
+const IP_LIMIT = 30;        // máximo de consultas /api/ por IP
+const IP_WINDOW_MS = 60_000; // ventana de 1 minuto
+const ipRequests = new Map();
+
+function getClientIp(req) {
+  const forwarded = req.headers['x-forwarded-for'];
+  return (forwarded ? forwarded.split(',')[0] : req.socket.remoteAddress || 'unknown').trim();
+}
+
+function checkIpLimit(ip) {
+  const now = Date.now();
+  let rec = ipRequests.get(ip);
+  if (!rec || now - rec.windowStart >= IP_WINDOW_MS) {
+    rec = { count: 0, windowStart: now };
+    ipRequests.set(ip, rec);
+  }
+  rec.count += 1;
+  return rec.count <= IP_LIMIT;
+}
+
+// Limpia IPs antiguas cada 5 minutos para no acumular memoria
+setInterval(() => {
+  const cutoff = Date.now() - IP_WINDOW_MS * 2;
+  for (const [ip, rec] of ipRequests) {
+    if (rec.windowStart < cutoff) ipRequests.delete(ip);
+  }
+}, 5 * 60_000).unref();
+
 function createApp({ config, service, publicDir = PUBLIC_DIR }) {
   const root = path.resolve(publicDir);
 
@@ -39,7 +70,12 @@ function createApp({ config, service, publicDir = PUBLIC_DIR }) {
 
   const param = (url, name) => (url.searchParams.get(name) || '').trim().slice(0, MAX_PARAM_LENGTH);
 
-  async function handleApi(url, res) {
+  async function handleApi(url, req, res) {
+    const ip = getClientIp(req);
+    if (!checkIpLimit(ip)) {
+      res.setHeader('Retry-After', '60');
+      return sendError(res, 429, 'rate_limited', 'Demasiadas consultas. Espera un minuto e inténtalo de nuevo.');
+    }
     try {
       switch (url.pathname) {
         case '/api/status':
@@ -106,7 +142,7 @@ function createApp({ config, service, publicDir = PUBLIC_DIR }) {
     } catch {
       return sendError(res, 400, 'bad_request', 'Dirección inválida.');
     }
-    return url.pathname.startsWith('/api/') ? handleApi(url, res) : serveStatic(url.pathname, res);
+    return url.pathname.startsWith('/api/') ? handleApi(url, req, res) : serveStatic(url.pathname, res);
   }
 
   return http.createServer((req, res) => {
