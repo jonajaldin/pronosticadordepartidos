@@ -12,42 +12,60 @@
     #__bundler_placeholder { color: #999; font-size: 14px; }
   </style>
   <script>
-    /* Detecta y corrige automáticamente el elemento que se desborda */
+    /* Fix: texto responsive + layout mobile */
     (function () {
-      var done = false;
-      function fixOverflow() {
-        if (done) return;
+      function fixText() {
         var vw = window.innerWidth;
-        var found = false;
-        document.querySelectorAll('*').forEach(function (el) {
-          if (el.scrollWidth > vw + 4) {
+        /* Solo encabezados y textos grandes, no contenedores */
+        document.querySelectorAll('h1,h2,h3,h4,[class*="title"],[class*="Title"],[class*="heading"],[class*="Heading"]').forEach(function (el) {
+          if (el.scrollWidth > vw + 2) {
             var fs = parseFloat(window.getComputedStyle(el).fontSize);
-            if (fs > 50) {
-              el.style.setProperty('font-size', 'clamp(1.8rem, 6vw, 5rem)', 'important');
+            if (fs > 40) {
+              el.style.setProperty('font-size', 'clamp(1.5rem, 5.5vw, 5rem)', 'important');
               el.style.setProperty('white-space', 'normal', 'important');
               el.style.setProperty('word-break', 'break-word', 'important');
               el.style.setProperty('line-height', '1.1', 'important');
-              found = true;
             }
           }
         });
-        if (found) done = true;
-        return found;
       }
-      function tryRepeatedly(attempts) {
-        if (fixOverflow()) return;
-        if (attempts > 0) setTimeout(function () { tryRepeatedly(attempts - 1); }, 200);
+      function fixMobileLayout() {
+        if (window.innerWidth >= 900) return;
+        var vh = window.innerHeight;
+        /* Elimina alturas mínimas excesivas que crean espacios en blanco en móvil */
+        document.querySelectorAll('*').forEach(function (el) {
+          if (el === document.documentElement || el === document.body) return;
+          var style = window.getComputedStyle(el);
+          var minH = parseFloat(style.minHeight);
+          if (!isNaN(minH) && minH > vh * 0.55) {
+            el.style.setProperty('min-height', 'auto', 'important');
+          }
+          /* También corrige alturas fijas que no escalan bien */
+          var h = parseFloat(style.height);
+          if (!isNaN(h) && h > vh * 0.85 && style.position !== 'fixed' && style.overflow !== 'hidden') {
+            el.style.setProperty('height', 'auto', 'important');
+          }
+        });
+        /* Asegura que las imágenes sean responsivas */
+        document.querySelectorAll('img').forEach(function (img) {
+          img.style.setProperty('max-width', '100%', 'important');
+          img.style.setProperty('height', 'auto', 'important');
+        });
       }
-      function onReady() {
+      function applyFixes() {
         if (document.body) document.body.style.overflowX = 'hidden';
-        setTimeout(function () { tryRepeatedly(10); }, 100);
+        fixText();
+        fixMobileLayout();
+        /* Reintentar por si el bundle sigue renderizando */
+        setTimeout(function () { fixText(); fixMobileLayout(); }, 400);
+        setTimeout(function () { fixText(); fixMobileLayout(); }, 900);
       }
       var mo = new MutationObserver(function (_, obs) {
         obs.disconnect();
-        setTimeout(onReady, 0);
+        setTimeout(applyFixes, 50);
       });
       mo.observe(document, { childList: true });
-      window.addEventListener('load', function () { setTimeout(onReady, 300); });
+      window.addEventListener('load', function () { setTimeout(applyFixes, 300); });
     })();
   </script>
   <noscript>
