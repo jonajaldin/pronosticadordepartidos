@@ -22,7 +22,7 @@ const MIME = {
 };
 const SECURITY_HEADERS = {
   'Content-Security-Policy':
-    "default-src 'self' blob:; img-src 'self' https: data: blob:; style-src 'self' blob: 'unsafe-inline'; script-src 'self' blob:; connect-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
+    "default-src 'self' blob:; img-src 'self' https: data: blob:; style-src 'self' blob: 'unsafe-inline'; script-src 'self' blob: 'unsafe-inline'; connect-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
   'X-Content-Type-Options': 'nosniff',
   'Referrer-Policy': 'no-referrer',
 };
