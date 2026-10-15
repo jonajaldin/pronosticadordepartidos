@@ -37,6 +37,8 @@ function readConfig(env = process.env) {
     baseUrl: (env.FOOTBALL_DATA_BASE_URL || 'https://api.football-data.org/v4').replace(/\/+$/, ''),
     timeoutMs: positive(env.FOOTBALL_DATA_TIMEOUT_MS, 10_000),
     requestsPerMinute: positive(env.FOOTBALL_DATA_RPM, 10),
+    ipRateLimit: positive(env.IP_RATE_LIMIT, 30),
+    trustProxy: /^(1|true|yes)$/i.test(env.TRUST_PROXY || ''),
   };
 }
 

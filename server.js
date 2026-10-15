@@ -31,36 +31,40 @@ const MAX_PARAM_LENGTH = 80;
 // ---------------------------------------------------------------------------
 // Limitador por IP (protege la cuota de football-data.org)
 // ---------------------------------------------------------------------------
-const IP_LIMIT = 30;        // máximo de consultas /api/ por IP
 const IP_WINDOW_MS = 60_000; // ventana de 1 minuto
-const ipRequests = new Map();
 
-function getClientIp(req) {
-  const forwarded = req.headers['x-forwarded-for'];
+// X-Forwarded-For solo es confiable detrás de un proxy propio; si no, cualquiera
+// lo inventa y se salta el límite.
+function getClientIp(req, trustProxy) {
+  const forwarded = trustProxy && req.headers['x-forwarded-for'];
   return (forwarded ? forwarded.split(',')[0] : req.socket.remoteAddress || 'unknown').trim();
 }
 
-function checkIpLimit(ip) {
-  const now = Date.now();
-  let rec = ipRequests.get(ip);
-  if (!rec || now - rec.windowStart >= IP_WINDOW_MS) {
-    rec = { count: 0, windowStart: now };
-    ipRequests.set(ip, rec);
-  }
-  rec.count += 1;
-  return rec.count <= IP_LIMIT;
+// Un contador por app (no global al módulo) para que cada servidor tenga el suyo.
+function createIpLimiter(limit, windowMs = IP_WINDOW_MS) {
+  const requests = new Map();
+  const cleanup = setInterval(() => {
+    const cutoff = Date.now() - windowMs * 2;
+    for (const [ip, rec] of requests) {
+      if (rec.windowStart < cutoff) requests.delete(ip);
+    }
+  }, 5 * windowMs);
+  cleanup.unref();
+  return function allow(ip) {
+    const now = Date.now();
+    let rec = requests.get(ip);
+    if (!rec || now - rec.windowStart >= windowMs) {
+      rec = { count: 0, windowStart: now };
+      requests.set(ip, rec);
+    }
+    rec.count += 1;
+    return rec.count <= limit;
+  };
 }
-
-// Limpia IPs antiguas cada 5 minutos para no acumular memoria
-setInterval(() => {
-  const cutoff = Date.now() - IP_WINDOW_MS * 2;
-  for (const [ip, rec] of ipRequests) {
-    if (rec.windowStart < cutoff) ipRequests.delete(ip);
-  }
-}, 5 * 60_000).unref();
 
 function createApp({ config, service, publicDir = PUBLIC_DIR }) {
   const root = path.resolve(publicDir);
+  const allowIp = config.ipRateLimit > 0 ? createIpLimiter(config.ipRateLimit) : () => true;
 
   function sendJson(res, status, body) {
     res.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' });
@@ -71,8 +75,7 @@ function createApp({ config, service, publicDir = PUBLIC_DIR }) {
   const param = (url, name) => (url.searchParams.get(name) || '').trim().slice(0, MAX_PARAM_LENGTH);
 
   async function handleApi(url, req, res) {
-    const ip = getClientIp(req);
-    if (!checkIpLimit(ip)) {
+    if (!allowIp(getClientIp(req, config.trustProxy))) {
       res.setHeader('Retry-After', '60');
       return sendError(res, 429, 'rate_limited', 'Demasiadas consultas. Espera un minuto e inténtalo de nuevo.');
     }

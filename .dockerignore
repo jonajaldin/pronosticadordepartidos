@@ -1,0 +1,8 @@
+.env
+.git
+.claude
+node_modules
+test
+test-support
+*.log
+.DS_Store

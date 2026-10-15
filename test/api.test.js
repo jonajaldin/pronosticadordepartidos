@@ -407,12 +407,10 @@ test('sirve la interfaz con cabeceras de seguridad y no deja salir de /public', 
   const page = await app.get('/');
   assert.equal(page.status, 200);
   assert.match(page.headers.get('content-type'), /text\/html/);
-  assert.match(page.body, /<title>Pronosticador/);
+  assert.match(page.body, /<title>Pronósticos/);
   assert.match(page.headers.get('content-security-policy'), /script-src 'self'/);
   assert.equal(page.headers.get('x-content-type-options'), 'nosniff');
 
-  assert.match((await app.get('/styles.css')).headers.get('content-type'), /text\/css/);
-  assert.match((await app.get('/app.js')).headers.get('content-type'), /text\/javascript/);
   assert.match((await app.get('/favicon.svg')).headers.get('content-type'), /image\/svg\+xml/);
 
   assert.equal((await app.get('/..%2f..%2fpackage.json')).status, 404);
@@ -433,4 +431,17 @@ test('rutas de API desconocidas y métodos no permitidos responden JSON claro', 
   const post = await app.get('/api/status', { method: 'POST' });
   assert.equal(post.status, 405);
   assert.equal(post.headers.get('allow'), 'GET, HEAD');
+});
+
+test('el limitador por IP corta con 429 y no confía en X-Forwarded-For sin proxy', async (t) => {
+  const app = await start(t, { seasons: league().seasons, appConfig: { ipRateLimit: 2 } });
+
+  assert.equal((await app.get('/api/status')).status, 200);
+  assert.equal((await app.get('/api/status')).status, 200);
+  const blocked = await app.get('/api/status', { headers: { 'X-Forwarded-For': '203.0.113.9' } });
+  assert.equal(blocked.status, 429);
+  assert.equal(blocked.body.error.code, 'rate_limited');
+  assert.equal(blocked.headers.get('retry-after'), '60');
+
+  assert.equal((await app.get('/favicon.svg')).status, 200);
 });

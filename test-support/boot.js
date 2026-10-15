@@ -7,7 +7,7 @@ const { createClient } = require('../src/footballData');
 const { createService } = require('../src/service');
 const { createApp } = require('../server');
 
-async function boot({ seasons, token = 'test-token', clientToken = token, clientOptions = {}, serviceOptions = {} } = {}) {
+async function boot({ seasons, token = 'test-token', clientToken = token, clientOptions = {}, serviceOptions = {}, appConfig = {} } = {}) {
   const upstream = await startMockUpstream({ token, seasons });
   const client = createClient({
     token: clientToken,
@@ -18,7 +18,7 @@ async function boot({ seasons, token = 'test-token', clientToken = token, client
     ...clientOptions,
   });
   const service = createService({ client, ...serviceOptions });
-  const app = createApp({ config: { token: clientToken }, service });
+  const app = createApp({ config: { token: clientToken, ...appConfig }, service });
   await new Promise((resolve) => app.listen(0, '127.0.0.1', resolve));
   const base = `http://127.0.0.1:${app.address().port}`;
 
