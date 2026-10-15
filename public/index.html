@@ -12,28 +12,42 @@
     #__bundler_placeholder { color: #999; font-size: 14px; }
   </style>
   <script>
-    /* Inyecta CSS responsive después de que el bundle reemplaza el documento */
+    /* Detecta y corrige automáticamente el elemento que se desborda */
     (function () {
-      var css = [
-        'html,body{overflow-x:hidden!important;max-width:100%!important;}',
-        'h1{font-size:clamp(2rem,8vw,7rem)!important;white-space:normal!important;',
-        'word-break:break-word!important;line-height:1.1!important;}'
-      ].join('');
       var done = false;
-      function inject() {
+      function fixOverflow() {
         if (done) return;
-        done = true;
-        var s = document.createElement('style');
-        s.id = '__hero_fix';
-        s.textContent = css;
-        if (document.head) document.head.appendChild(s);
+        var vw = window.innerWidth;
+        var found = false;
+        document.querySelectorAll('*').forEach(function (el) {
+          if (el.scrollWidth > vw + 4) {
+            var fs = parseFloat(window.getComputedStyle(el).fontSize);
+            if (fs > 50) {
+              el.style.setProperty('font-size', 'clamp(1.8rem, 6vw, 5rem)', 'important');
+              el.style.setProperty('white-space', 'normal', 'important');
+              el.style.setProperty('word-break', 'break-word', 'important');
+              el.style.setProperty('line-height', '1.1', 'important');
+              found = true;
+            }
+          }
+        });
+        if (found) done = true;
+        return found;
+      }
+      function tryRepeatedly(attempts) {
+        if (fixOverflow()) return;
+        if (attempts > 0) setTimeout(function () { tryRepeatedly(attempts - 1); }, 200);
+      }
+      function onReady() {
+        if (document.body) document.body.style.overflowX = 'hidden';
+        setTimeout(function () { tryRepeatedly(10); }, 100);
       }
       var mo = new MutationObserver(function (_, obs) {
         obs.disconnect();
-        setTimeout(inject, 0);
+        setTimeout(onReady, 0);
       });
       mo.observe(document, { childList: true });
-      window.addEventListener('load', function () { setTimeout(inject, 200); });
+      window.addEventListener('load', function () { setTimeout(onReady, 300); });
     })();
   </script>
   <noscript>
